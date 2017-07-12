@@ -9,7 +9,7 @@ namespace ERC20Demo
     {
         public static void Main()
         {
-            Storage.Put(Storage.CurrentContext, "ERC20Demo");
+            Storage.Put(Storage.CurrentContext, "TokenName", "ERC20Demo");
         }
     }
 }
