@@ -10,7 +10,8 @@ namespace ERC20Demo
 
         public static string name = "Beer IOU Token";
         public static string symbol = "BEER";
-        public static int decimals = 18;
+        public static int supply = 100;
+
 
         public static object Main(string operation, params object[] args)
         {
@@ -20,19 +21,19 @@ namespace ERC20Demo
                     return totalSupply();
 
                 case "balanceOf":
-                    return balanceOf( (string)args[0] );
+                    return balanceOf( (byte[])args[0] );
 
                 case "transfer":
-                    return transfer( (string)args[0] , (byte[])args[1] );
+                    return transfer( (byte[])args[0] , (int)args[1] );
 
                 case "transferFrom":
-                    return transferFrom( (string)args[0] , (string)args[1] , (byte[])args[2] );
+                    return transferFrom( (byte[])args[0] , (byte[])args[1] , (int)args[2] );
 
                 case "approve":
-                    return approve( (string)args[0] , (byte[])args[1] );
+                    return approve( (byte[])args[0] , (int)args[1] );
 
                 case "allowance":
-                    return allowance( (string)args[0] , (string)args[1] );
+                    return allowance( (byte[])args[0] , (byte[])args[1] );
 
                 default:
                     return false;
@@ -46,10 +47,8 @@ namespace ERC20Demo
         ///  Returns: the total supply of tokens in circulation.
         ///  
         ///  </summary>
-        private static byte[] totalSupply()
+        private static int totalSupply()
         {
-            byte[] supply = new byte[] { };
-
             return supply;
         }
 
@@ -61,7 +60,7 @@ namespace ERC20Demo
         ///    Returns:
         ///      byte[]: The account holdings of the input address.
         ///  </summary>        
-        private static byte[] balanceOf( string owner )
+        private static byte[] balanceOf( byte[] owner )
         {
             return Storage.Get(Storage.CurrentContext, owner);
         }
@@ -75,8 +74,9 @@ namespace ERC20Demo
         ///    Returns: 
         ///      value: The amount to transfer.   
         ///  </summary>
-        private static bool transfer( string to , byte[] value )
+        private static bool transfer( byte[] to , int value )
         {
+
             return true;
         }
 
@@ -90,7 +90,7 @@ namespace ERC20Demo
         ///    Returns:
         ///      bool: Transaction Successful?   
         ///  </summary>
-        private static bool transferFrom( string from , string to , byte[] value)
+        private static bool transferFrom( byte[] from , byte[] to , int value)
         {
             return true;
         }
@@ -104,7 +104,7 @@ namespace ERC20Demo
         ///    Returns:
         ///      bool: Transaction Successful?
         ///  </summary>
-        private static bool approve( string spender , byte[] value)
+        private static bool approve( byte[] spender , int value)
         {
             return true;
         }
@@ -116,7 +116,7 @@ namespace ERC20Demo
         ///      owner: The account with an allowance on it.
         ///      spender: The account that is authorized to spend.
         ///  </summary>
-        private static byte[] allowance( string owner , string spender)
+        private static byte[] allowance( byte[] owner , byte[] spender)
         {
             byte[] tokens = new byte[] { };
 
