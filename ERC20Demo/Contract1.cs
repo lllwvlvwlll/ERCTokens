@@ -27,7 +27,7 @@ namespace ERC20Demo
                     return Transfer( (byte[])args[0] , (byte[])args[1] ,  (byte[])args[2] , (int)args[3] );
 
                 case "TransferFrom":
-                    return TransferFrom( (byte[])args[0] , (byte[])args[1] , (byte[])args[2] , (byte[])args[3] , (int)args[2] );
+                    return TransferFrom( (byte[])args[0] , (byte[])args[1] , (byte[])args[2] , (byte[])args[3] , (int)args[4] );
 
                 case "Approve":
                     return Approve( (byte[])args[0] , (byte[])args[1] , (byte[])args[2] , (int)args[3] );
