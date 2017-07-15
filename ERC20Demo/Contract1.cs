@@ -5,92 +5,98 @@ using System.Numerics;
 
 namespace ERC20Demo
 {
-    public class Contract1 : FunctionCode
+    public class Woolong : FunctionCode
     {
 
-        public static string name = "lllwvlvwlll Beer Token";
-        public static string symbol = "BEER";
-        public static int supply = 100;
-
+        public static string name = "Woolong";
+        public static string symbol = "WLG";
+        public static uint supply = 100000000;
+        public static byte[] admin = ;
+        public static byte[] originator = new byte[] { };
+        public static byte[] sig = new byte[] { };
 
         public static object Main( string operation , params object[] args )
         {
+            originator = (byte[])args[0];
+            sig = (byte[])args[1];
+
+            if (!VerifySignature(originator, sig)) return false;
+
             switch ( operation )
             {
                 case "TotalSupply":
                     return TotalSupply();
 
                 case "BalanceOf":
-                    return BalanceOf( (byte[])args[0] );
+                    return BalanceOf( originator );
 
                 case "Transfer":
-                    return Transfer( (byte[])args[0] , (byte[])args[1] ,  (byte[])args[2] , (int)args[3] );
+                    return Transfer( originator , (uint)args[2] );
 
                 case "TransferFrom":
-                    return TransferFrom( (byte[])args[0] , (byte[])args[1] , (byte[])args[2] , (byte[])args[3] , (int)args[4] );
+                    return TransferFrom( (byte[])args[2] , (byte[])args[3] , (uint)args[4] );
 
                 case "Approve":
-                    return Approve( (byte[])args[0] , (byte[])args[1] , (byte[])args[2] , (int)args[3] );
+                    return Approve( (byte[])args[2] , (uint)args[3] );
 
                 case "Allowance":
                     return Allowance( (byte[])args[0] , (byte[])args[1] );
 
+                case "Deploy":
+                    return Deploy();
                 default:
                     return false;
             }
 
         }
 
-
         ///  <summary>
         ///  Calculates the total circulating supply of tokens.
-        ///  Returns: the total supply of tokens in circulation.
-        ///  
+        ///  Returns:
+        ///    uint: the total supply of tokens in circulation.
         ///  </summary>
-        private static int TotalSupply()
+        private static uint TotalSupply()
         {
             return supply;
         }
+
 
         ///  <summary>
         ///    Identifies the balance of a user 
         ///    Args:
         ///      owner: The account address to look up.
         ///    Returns:
-        ///      int: The account holdings of the input address.
+        ///      uint: The account holdings of the input address.
         ///  </summary>        
-        private static int BalanceOf( byte[] owner )
+        private static uint BalanceOf( byte[] owner )
         {
             byte[] balance = Storage.Get(Storage.CurrentContext, owner);
 
             if (BitConverter.IsLittleEndian)
                 Array.Reverse(balance);
 
-            return BitConverter.ToInt32(balance, 0);
+            return BitConverter.ToUInt32(balance, 0);
         }
+
 
         ///  <summary>
         ///    Transfers a balance to an address
         ///    Args:
-        ///      from: the address to transfer tokens from.
-        ///      sig: the signature of the from user.
         ///      to: The address to transfer tokens to.
         ///      transValue: The amount of tokens to transfer.
         ///    Returns: 
         ///      bool: Transaction Successful?.   
         ///  </summary>
-        private static bool Transfer(byte[] from , byte[] sig , byte[] to , int transValue )
+        private static bool Transfer( byte[] to , uint transValue )
         {
-            if (!VerifySignature(from, sig)) return false;
+            uint originatorValue = BalanceOf(originator);
+            uint toValue = BalanceOf(to);
 
-            int fromValue = BalanceOf(from);
-            int toValue = BalanceOf(to);
-
-            if ((fromValue >= transValue) &&
+            if ((originatorValue >= transValue) &&
                 (transValue > 0)) {
 
                 byte[] toByteVal = BitConverter.GetBytes(toValue + transValue);
-                byte[] fromByteVal = BitConverter.GetBytes(fromValue - transValue);
+                byte[] fromByteVal = BitConverter.GetBytes(originatorValue - transValue);
 
                 if (BitConverter.IsLittleEndian)
                 {
@@ -98,7 +104,7 @@ namespace ERC20Demo
                     Array.Reverse(fromByteVal);
                 }
 
-                Storage.Put(Storage.CurrentContext, from, fromByteVal);
+                Storage.Put(Storage.CurrentContext, originator, fromByteVal);
                 Storage.Put(Storage.CurrentContext, to, toByteVal);
 
                 return true;
@@ -108,22 +114,20 @@ namespace ERC20Demo
             return false;
         }
 
+
         ///  <summary>
         ///    Transfers a balance from one address to another.
         ///    Args:
-        ///      del: the delegate account
-        ///      sig: the signature of the 
         ///      from: The address to transfer funds from.
         ///      to: The adress to transfer funds to.
         ///      value: The amount of tokens to transfer.
         ///    Returns:
         ///      bool: Transaction Successful?   
         ///  </summary>
-        private static bool TransferFrom(byte[] del, byte[] sig, byte[] from, byte[] to, int value)
+        private static bool TransferFrom( byte[] from, byte[] to, uint value)
         {
-            if (!VerifySignature(del, sig)) return false;
 
-            byte[] allocated = Storage.Get(Storage.CurrentContext, from.Concat(del));
+            byte[] allocated = Storage.Get(Storage.CurrentContext, from.Concat(originator));
             byte[] fromValue = Storage.Get(Storage.CurrentContext, from);
             byte[] toValue = Storage.Get(Storage.CurrentContext, to);
 
@@ -134,48 +138,46 @@ namespace ERC20Demo
                 Array.Reverse(toValue);
             }
 
-            int allValInt = BitConverter.ToInt32(allocated, 0);
-            int fromValInt = BitConverter.ToInt32(fromValue, 0);
-            int toValInt = BitConverter.ToInt32(toValue, 0);
-
-            byte[] newFromVal = BitConverter.GetBytes(fromValInt - value);
-            byte[] newAll = BitConverter.GetBytes(allValInt - value);
-            byte[] newToVal = BitConverter.GetBytes(toValInt + value);
-
-            if (BitConverter.IsLittleEndian)
-            {
-                Array.Reverse(newFromVal);
-                Array.Reverse(newAll);
-                Array.Reverse(newToVal);
-            }
-
+            uint allValInt = BitConverter.ToUInt32(allocated, 0);
+            uint fromValInt = BitConverter.ToUInt32(fromValue, 0);
+            uint toValInt = BitConverter.ToUInt32(toValue, 0);
 
             if ((fromValInt >= value) &&
                 (value > 0) &&
                 (allValInt > 0))
             {
-                Storage.Put(Storage.CurrentContext, from.Concat(del), newAll);
+                byte[] newFromVal = BitConverter.GetBytes(fromValInt - value);
+                byte[] newAll = BitConverter.GetBytes(allValInt - value);
+                byte[] newToVal = BitConverter.GetBytes(toValInt + value);
+
+                if (BitConverter.IsLittleEndian)
+                {
+                    Array.Reverse(newFromVal);
+                    Array.Reverse(newAll);
+                    Array.Reverse(newToVal);
+                }
+
+                Storage.Put(Storage.CurrentContext, from.Concat(originator), newAll);
                 Storage.Put(Storage.CurrentContext, to, newToVal);
                 Storage.Put(Storage.CurrentContext, from, newFromVal);
+
+                return true;
             }
 
-            return true;
+            return false;
         }
+
 
         ///  <summary>
         ///    Allows a user to withdraw multiple times from an account up to a limit.
         ///    Args:
-        ///      owner: The account to allow access to.
-        ///      sig: the signature of the account owner
         ///      spender: the account that will be allowed access
         ///      value: The amount the spender can withdraw up to.
         ///    Returns:
         ///      bool: Transaction Successful?
         ///  </summary>
-        private static bool Approve( byte[] owner , byte[] sig , byte[] spender , int value)
+        private static bool Approve( byte[] spender , uint value)
         {
-            if (!VerifySignature(owner, sig)) return false;
-
             byte[] val = BitConverter.GetBytes(value);
 
             if (BitConverter.IsLittleEndian)
@@ -183,29 +185,48 @@ namespace ERC20Demo
                 Array.Reverse(val);
             }
 
-            Storage.Put(Storage.CurrentContext, owner.Concat(spender), val);
+            Storage.Put(Storage.CurrentContext, originator.Concat(spender), val);
 
             return true;
         }
 
+
         ///  <summary>
         ///    Returns the amount that a spender is allowed to spend on an owner's account.
         ///    Args:
-        ///      owner: The account with an allowance on it.
-        ///      sig: the signature of the account owner
+        ///      owner: the acount that is being allowed access to
         ///      spender: The account that is authorized to spend.
         ///    Returns:
-        ///      int: The number of tokens available to the user.
+        ///      uint: The number of tokens available to the user.
         ///  </summary>
-        private static int Allowance( byte[] owner , byte[] spender )
-
+        private static uint Allowance( byte[] owner , byte[] spender )
         {
             byte[] balance = Storage.Get(Storage.CurrentContext, owner.Concat(spender));
 
             if (BitConverter.IsLittleEndian)
+            {
                 Array.Reverse(balance);
+            }
 
-            return BitConverter.ToInt32(balance, 0);
+            return BitConverter.ToUInt32(balance, 0);
+        }
+
+        private static bool Deploy()
+        {
+            if (originator == admin)
+            {
+                byte[] total = BitConverter.GetBytes(supply);
+
+                if (BitConverter.IsLittleEndian)
+                {
+                    Array.Reverse(total);
+                }
+
+                Storage.Put(Storage.CurrentContext, originator, total);
+
+                return true;
+            }
+            return false;
         }
     }
 }
