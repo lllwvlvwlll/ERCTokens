@@ -11,7 +11,7 @@ namespace ERC20Demo
         public static string name = "Woolong";
         public static string symbol = "WLG";
         public static uint supply = 100000000;
-        public static byte[] admin = ;
+        public static byte[] admin = new byte[] { };
         public static byte[] originator = new byte[] { };
         public static byte[] sig = new byte[] { };
 
@@ -20,7 +20,10 @@ namespace ERC20Demo
             originator = (byte[])args[0];
             sig = (byte[])args[1];
 
-            if (!VerifySignature(originator, sig)) return false;
+            if (!VerifySignature(originator, sig))
+            {
+                return false;
+            }
 
             switch ( operation )
             {
@@ -44,6 +47,7 @@ namespace ERC20Demo
 
                 case "Deploy":
                     return Deploy();
+
                 default:
                     return false;
             }
@@ -211,6 +215,10 @@ namespace ERC20Demo
             return BitConverter.ToUInt32(balance, 0);
         }
 
+
+        /// <summary>
+        ///   Deploys the contract tokens. 
+        /// </summary>
         private static bool Deploy()
         {
             if (originator == admin)

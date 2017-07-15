@@ -3,4 +3,3 @@ Z:\Projects\Tokens\ERCTokens\ERC20Demo\bin\Debug\ERC20Demo.pdb
 Z:\Projects\Tokens\ERCTokens\ERC20Demo\bin\Debug\AntShares.SmartContract.Framework.dll
 Z:\Projects\Tokens\ERCTokens\ERC20Demo\obj\Debug\ERC20Demo.dll
 Z:\Projects\Tokens\ERCTokens\ERC20Demo\obj\Debug\ERC20Demo.pdb
-Z:\Projects\Tokens\ERCTokens\ERC20Demo\obj\Debug\ERC20Demo.csprojResolveAssemblyReference.cache
