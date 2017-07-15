@@ -31,10 +31,10 @@ namespace ERC20Demo
                     return TotalSupply();
 
                 case "BalanceOf":
-                    return BalanceOf( originator );
+                    return BalanceOf( (byte[])args[2] );
 
                 case "Transfer":
-                    return Transfer( originator , (uint)args[2] );
+                    return Transfer( (byte[])args[2] , (uint)args[3] );
 
                 case "TransferFrom":
                     return TransferFrom( (byte[])args[2] , (byte[])args[3] , (uint)args[4] );
