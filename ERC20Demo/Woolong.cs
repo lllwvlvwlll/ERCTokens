@@ -97,7 +97,8 @@ namespace ERC20Demo
             uint toValue = BalanceOf(to);
 
             if ((originatorValue >= transValue) &&
-                (transValue > 0)) {
+                (transValue > 0))
+            {
 
                 byte[] toByteVal = BitConverter.GetBytes(toValue + transValue);
                 byte[] fromByteVal = BitConverter.GetBytes(originatorValue - transValue);
